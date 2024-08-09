@@ -5,8 +5,8 @@ use std::thread;
 fn main() -> io::Result<()> {
     let host = "localhost";
     let port = 1234;
-    let address = format!("{}:{}", host, port);
-    println!("The address looks like: {}", address);
+    let address = format!("{host}:{port}");
+    println!("The address looks like: {address}");
 
     match TcpStream::connect(address) {
         Ok(mut stream) => {
@@ -19,7 +19,7 @@ fn main() -> io::Result<()> {
             match io::stdin().read_line(&mut username) {
                 Ok(_) => {}
                 Err(error) => {
-                    println!("error: {}", error);
+                    eprintln!("error: {error}");
                     return Ok(());
                 }
             }
@@ -30,7 +30,7 @@ fn main() -> io::Result<()> {
             let mut buffer = vec![0; 1024];
             stream.read(&mut buffer).expect("Failed to read from server");
             let response = String::from_utf8_lossy(&buffer).trim_end_matches('\0').trim().to_string();
-            println!("Received response from server: {}", response);
+            println!("Received response from server: {response}");
 
             if response == "username unavailable" {
                 eprintln!("Username is unavailable, exiting...");
@@ -45,10 +45,10 @@ fn main() -> io::Result<()> {
                     Ok(0) => break, // disconnected
                     Ok(_) => {
                         let msg = String::from_utf8_lossy(&buffer).trim_end_matches('\0').trim().to_string();
-                        println!("\n{}\n", msg);
+                        println!("\n{msg}\n");
                     }
                     Err(e) => {
-                        eprintln!("Failed to read from server: {}", e);
+                        eprintln!("Failed to read from server: {e}");
                         break;
                     }
                 }
@@ -68,21 +68,19 @@ fn main() -> io::Result<()> {
                             stream.write_all(trimmed_message.as_bytes()).expect("Failed to write to server");
                             println!("Disconnected.");
                             break;
-                        } else if trimmed_message.starts_with("/") {
-                            stream.write_all(trimmed_message.as_bytes()).expect("Failed to write to server");
                         } else {
                             stream.write_all(trimmed_message.as_bytes()).expect("Failed to write to server");
                         }
                     }
                     Err(error) => {
-                        println!("error: {}", error);
+                        eprintln!("error: {error}");
                         break;
                     }
                 }
             }
         }
         Err(e) => {
-            eprintln!("Failed to connect: {}", e);
+            eprintln!("Failed to connect: {e}");
         }
     }
 
